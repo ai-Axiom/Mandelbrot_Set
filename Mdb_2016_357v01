@@ -1,0 +1,61 @@
+#include <math.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <iostream>
+
+const int maxcol = 639;
+const int maxrow = 349;
+const int max_colors = 16;
+int CURSOR_X=0, CURSOR_Y=0, col ,row;
+int max_iterations = 512;
+int max_size = 4;
+int LINEWIDTH=1 , OPERATOR=0x00, ANGLE, XCENTER, YCENTER;
+unsigned long int PATTERN=0xFFFFFFFF;
+unsigned char PALEETTE[16]=[0,1,2,3,4,5,20,7,56,57,58,59,60,61,62,63];
+int colors[16]={0,1,2,3,4,5,20,7,56,57,58,59,60,61,62,63}
+double Q[350];
+float TXMax,TYMax,TXMin,TYMin;
+union LIMIT XMax,YMax,XMin,Pval,Qval;
+
+char file_name[13] = {"Madel00.pcx"};
+
+
+
+
+    float P,deltaP, deltaQ, X, Y , Xsquare, Ysquare;
+    int i ,color, row, col,error,response,repeat=0x30;
+    
+    XMax = 1.2;
+    XMin = -2.0;
+    YMax = 1.2;
+    YMin = -1.2;
+    setMode(16);
+    cls(7);
+    deltaP = (XMax - XMin) / (maxcol);
+    deltaQ = (YMax - YMin) / (maxrow);
+    Q[0] = YMax;
+    Q[row] = Q[row-1] - deltaQ;
+    P = XMin;
+    for (col=0; col<maxcol; col++)
+    {
+        if (kbhit() != 0)
+            exit (0);
+        for (row=0; row<=maxrow; row++)
+        {
+            X = Y = Xsquare = Ysquare = 0.0;
+            color = 1;
+            while ((color<max_iterations) && ((Xsquare + Ysquare) < max_size))
+            {
+                Xsquare = X*X;
+                Ysquare = Y*Y;
+                Y *= X;
+                Y += Y + Q[row];
+                X = Xsquare - Ysquare + P;
+                color ++;
+            }
+            plot(col, row, (color % max_colors));
+        }
+        P += deltaP;
+    }
+    getch();
+}
